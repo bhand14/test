@@ -1,9 +1,28 @@
-#!/usr/bin/env groovy
-def list = app_list
-println list.class
-
-node {
-  stage("First Stage") {
-    echo "Hello, world!"
-  }
+pipeline {
+    agent {
+      kubernetes {
+        cloud 'minikube'
+        yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: maven
+    image: maven:alpine
+    command:
+    - cat
+    tty: true
+"""
+        }
+    }
+    
+    stages {
+        stage ("Run Maven.") {
+            steps {
+                container('maven'){
+                    sh 'mvn -version'
+                }
+            }
+        }
+    }
 }
